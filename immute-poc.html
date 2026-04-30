@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Immute — Live Demo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #0d0f14;
+    --surface: #141720;
+    --surface2: #1c2030;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --hint: #3d4355;
+    --accent: #4f9eff;
+    --accent-dim: rgba(79,158,255,0.12);
+    --green: #34d399;
+    --green-dim: rgba(52,211,153,0.12);
+    --red: #f87171;
+    --red-dim: rgba(248,113,113,0.12);
+    --amber: #fbbf24;
+    --amber-dim: rgba(251,191,36,0.12);
+    --purple: #a78bfa;
+    --purple-dim: rgba(167,139,250,0.12);
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'DM Sans', system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* Header */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100%{opacity:1;transform:scale(1)}
+    50%{opacity:.5;transform:scale(1.3)}
+  }
+  .logo-text {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--text);
+  }
+  .logo-sub {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+  .header-meta {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+
+  /* Layout */
+  main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 32px 24px;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0;
+  }
+  .tab {
+    padding: 8px 18px 12px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--muted);
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 400;
+    cursor: pointer;
+    transition: all .15s;
+    margin-bottom: -1px;
+    white-space: nowrap;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.on {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    font-weight: 500;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .card-header {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface2);
+  }
+  .card-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+  }
+  .pill {
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-family: var(--mono);
+    letter-spacing: 0.02em;
+  }
+  .pill-client { background: rgba(79,158,255,.15); color: var(--accent); }
+  .pill-layer  { background: rgba(52,211,153,.15); color: var(--green); }
+  .pill-warn   { background: rgba(248,113,113,.15); color: var(--red); }
+  .pill-ok     { background: rgba(52,211,153,.15); color: var(--green); }
+  .pill-config { background: rgba(167,139,250,.15); color: var(--purple); }
+
+  /* Code blocks */
+  .code {
+    padding: 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.75;
+    color: #8b9cc8;
+    white-space: pre;
+    overflow-x: auto;
+    background: var(--surface);
+    tab-size: 2;
+  }
+  .kw  { color: var(--purple); }
+  .str { color: var(--green); }
+  .fn  { color: var(--accent); }
+  .cm  { color: var(--hint); font-style: italic; }
+  .num { color: var(--amber); }
+  .ok  { color: var(--green); }
+  .err { color: var(--red); }
+
+  /* Action row */
+  .act-row {
+    padding: 10px 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    background: var(--surface2);
+  }
+  .btn {
+    padding: 6px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--surface2); border-color: var(--border2); }
+  .btn:active { transform: scale(.98); }
+  .btn.primary {
+    background: var(--accent-dim);
+    border-color: rgba(79,158,255,.35);
+    color: var(--accent);
+  }
+  .btn.primary:hover { background: rgba(79,158,255,.2); }
+
+  .rbox {
+    flex: 1;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    padding: 5px 10px;
+    background: var(--bg);
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    min-height: 30px;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    transition: all .2s;
+  }
+  .rbox.ok  { color: var(--green); border-color: rgba(52,211,153,.3); }
+  .rbox.err { color: var(--red);   border-color: rgba(248,113,113,.3); }
+
+  /* Grid */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } }
+
+  /* Insight box */
+  .insight {
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(79,158,255,.2);
+    background: rgba(79,158,255,.06);
+    font-size: 12.5px;
+    color: #a0b8d8;
+    line-height: 1.65;
+    margin-top: 4px;
+  }
+  .insight b { color: var(--accent); font-weight: 500; }
+  .insight code {
+    font-family: var(--mono);
+    font-size: 11px;
+    background: rgba(79,158,255,.12);
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: var(--accent);
+  }
+
+  /* Metrics */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .metric {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .mlabel { font-size: 11px; color: var(--muted); margin-bottom: 6px; letter-spacing: 0.03em; }
+  .mval   { font-size: 24px; font-weight: 500; color: var(--text); font-family: var(--mono); }
+  .mval.green { color: var(--green); }
+  .mval.red   { color: var(--red); }
+
+  /* Provider toggle */
+  .prow {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .plabel { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+  .pbtn {
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border2);
+    background: transparent;
+    font-size: 12px;
+    font-family: var(--mono);
+    cursor: pointer;
+    color: var(--muted);
+    transition: all .15s;
+  }
+  .pbtn:hover { background: var(--surface2); color: var(--text); }
+  .pbtn.on {
+    background: var(--green-dim);
+    color: var(--green);
+    border-color: rgba(52,211,153,.3);
+    font-weight: 500;
+  }
+
+  /* Sections */
+  .tsection { display: none; }
+  .tsection.on { display: block; }
+
+  /* Slider */
+  input[type=range] {
+    -webkit-appearance: none;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border2);
+    outline: none;
+    flex: 1;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+  }
+
+  select {
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border2);
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+    outline: none;
+  }
+
+  .cost-detail {
+    padding: 6px 16px 14px;
+    font-size: 11px;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 16px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 40px;
+  }
+  .footer-l { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+  .footer-r { font-size: 12px; color: var(--hint); }
+
+  .slide-ref {
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--hint);
+    margin-left: auto;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    <div>
+      <div class="logo-text">Immute</div>
+      <div class="logo-sub">POST /v1/chat/completions · One API contract. Any model. Zero client changes.</div>
+    </div>
+  </div>
+  <div class="header-meta">APIDays · May 2026</div>
+</header>
+
+<main>
+  <div class="tabs" id="tabs">
+    <button class="tab on" data-t="routing">Smart routing</button>
+    <button class="tab" data-t="swap">Model swap</button>
+    <button class="tab" data-t="errors">Error normalization</button>
+    <button class="tab" data-t="cost">Cost optimizer</button>
+  </div>
+
+  <!-- SMART ROUTING -->
+  <div class="tsection on" id="t-routing">
+    <div class="card">
+      <div class="card-header">
+        <span class="pill pill-client">CLIENT</span>
+        <span class="card-title">POST /v1/chat/completions — "model": "default-reasoning"</span>
+        <span class="slide-ref">slide 7</span>
+      </div>
+      <div class="code" id="routing-log"><span class="cm">Press "Simulate request" to watch the fallback cascade...</span></div>
+      <div class="act-row">
+        <button class="btn primary" onclick="runRouting()">Simulate request</button>
+        <button class="btn" onclick="resetRouting()">Reset</button>
+        <div class="rbox" id="routing-result">—</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span class="pill pill-config">CONFIG</span>
+        <span class="card-title">routing_config.yaml</span>
+      </div>
+      <div class="code"><span class="kw">routes</span>:
+  <span class="kw">default-reasoning</span>:
+    <span class="kw">primary</span>:
+      provider: <span class="str">anthropic</span>   model: <span class="str">claude-opus-4-6</span>
+    <span class="kw">fallback</span>:
+      - provider: <span class="str">openai</span>     model: <span class="str">gpt-4o</span>
+      - provider: <span class="str">google</span>     model: <span class="str">gemini-2.5-pro</span>
+    <span class="kw">health</span>:
+      failure_threshold: <span class="num">5</span>   recovery_timeout: <span class="str">30s</span>   probe_interval: <span class="str">10s</span></div>
+    </div>
+    <div class="insight">
+      <b>What the client sees:</b> one logical name <code>"default-reasoning"</code>, one unified response — regardless of which provider actually served the request. Two providers failed silently; the client never knew.
+    </div>
+  </div>
+
+  <!-- MODEL SWAP -->
+  <div class="tsection" id="t-swap">
+    <div class="prow">
+      <span class="plabel">Registry mapping for <code>"default"</code>:</span>
+      <button class="pbtn on" id="map-sonnet" onclick="setMapping('sonnet')">Sonnet 4.6 — $15/1M</button>
+      <button class="pbtn" id="map-haiku"  onclick="setMapping('haiku')">Haiku 4.5 — $4/1M</button>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-header">
+          <span class="pill pill-client">CLIENT CODE</span>
+          <span class="card-title">Never changes</span>
+          <span class="slide-ref">slide 10</span>
+        </div>
+        <div class="code"><span class="cm">// Same before and after the swap</span>
+<span class="kw">const</span> res = <span class="kw">await</span> client.<span class="fn">complete</span>({
+  model: <span class="str">"default"</span>,
+  messages: [{
+    role: <span class="str">"user"</span>,
+    content: userMessage
+  }]
+});
+<span class="fn">console</span>.<span class="fn">log</span>(res.choices[<span class="num">0</span>].message.content);</div>
+        <div class="act-row">
+          <button class="btn" onclick="runSwap('client')">Run</button>
+          <div class="rbox" id="swap-client-result">—</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="pill pill-layer">REGISTRY</span>
+          <span class="card-title" id="swap-panel-title">Sonnet 4.6 — config only</span>
+        </div>
+        <div class="code" id="swap-registry-code"><span class="kw">models</span>:
+  <span class="kw">default</span>:
+    provider:   <span class="str">anthropic</span>
+    model_id:   <span class="str">claude-sonnet-4-6</span>
+    max_tokens: <span class="num">8192</span>
+    cost_per_m: <span class="num">15.00</span>
+    <span class="cm"># ← change this line only. No deploy.</span></div>
+        <div class="act-row">
+          <button class="btn" onclick="runSwap('registry')">Run</button>
+          <div class="rbox" id="swap-registry-result">—</div>
+        </div>
+      </div>
+    </div>
+    <div class="insight">
+      <b>Key point:</b> switching from Sonnet to Haiku is a one-line config change. Zero code deploys. Zero client changes. The abstraction layer resolves <code>"default"</code> at runtime against the registry.
+    </div>
+  </div>
+
+  <!-- ERROR NORMALIZATION -->
+  <div class="tsection" id="t-errors">
+    <div class="grid2">
+      <div class="card">
+        <div class="card-header">
+          <span class="pill pill-warn">RAW PROVIDER</span>
+          <span class="card-title">Three formats</span>
+          <span class="slide-ref">slide 5</span>
+        </div>
+        <div class="code"><span class="cm">// Anthropic</span>
+{ status: <span class="num">529</span>,
+  error: { type: <span class="str">"overloaded_error"</span> }}
+
+<span class="cm">// OpenAI</span>
+{ status: <span class="num">429</span>,
+  error: { code: <span class="str">"rate_limit_exceeded"</span>,
+           type: <span class="str">"requests"</span> }}
+
+<span class="cm">// Google</span>
+{ status: <span class="num">429</span>,
+  error: { status: <span class="str">"RESOURCE_EXHAUSTED"</span>,
+           message: <span class="str">"Quota exceeded"</span> }}</div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="pill pill-ok">UNIFIED OUTPUT</span>
+          <span class="card-title">One format</span>
+        </div>
+        <div class="code"><span class="cm">// All three normalize to this</span>
+{
+  error: {
+    code:        <span class="str">"<span id="err-code">model_unavailable</span>"</span>,
+    message:     <span class="str">"<span id="err-msg">Service temporarily unavailable</span>"</span>,
+    status:      <span class="num" id="err-status">503</span>,
+    provider:    <span class="str">"<span id="err-prov">anthropic</span>"</span>,
+    retry_after: <span class="num" id="err-retry">30</span>
+  }
+}</div>
+        <div class="act-row">
+          <select id="err-provider">
+            <option value="anthropic">Anthropic 529 overloaded</option>
+            <option value="openai">OpenAI 429 rate_limit</option>
+            <option value="google">Google 429 RESOURCE_EXHAUSTED</option>
+            <option value="openai404">OpenAI 404 model_not_found</option>
+          </select>
+          <button class="btn" onclick="normalizeError()">Normalize</button>
+          <div class="rbox" id="err-result">—</div>
+        </div>
+      </div>
+    </div>
+    <div class="insight">
+      <b>Key point:</b> your clients catch one error schema regardless of provider. Error handling logic is written once, not three times per integration. Three formats in — one format out.
+    </div>
+  </div>
+
+  <!-- COST OPTIMIZER -->
+  <div class="tsection" id="t-cost">
+    <div class="metrics">
+      <div class="metric">
+        <div class="mlabel">Daily output tokens</div>
+        <div class="mval">10M</div>
+      </div>
+      <div class="metric">
+        <div class="mlabel">All → Sonnet 4.6</div>
+        <div class="mval red" id="c-all">$4,500/mo</div>
+      </div>
+      <div class="metric">
+        <div class="mlabel">Smart routing</div>
+        <div class="mval green" id="c-smart">$1,860/mo</div>
+      </div>
+      <div class="metric">
+        <div class="mlabel">Monthly savings</div>
+        <div class="mval green" id="c-save">59%</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span class="pill pill-layer">ROUTER</span>
+        <span class="card-title">Route by complexity, not habit</span>
+        <span class="slide-ref">slide 9</span>
+      </div>
+      <div class="code"><span class="kw">function</span> <span class="fn">route</span>(request) {
+  <span class="kw">const</span> complexity = <span class="fn">classify</span>(request);
+  <span class="cm">// simple: summaries, emails, short-form</span>
+  <span class="kw">if</span> (complexity === <span class="str">"simple"</span>)
+    <span class="kw">return</span> registry.<span class="fn">resolve</span>(<span class="str">"default-fast"</span>);   <span class="cm">// Haiku $4/1M</span>
+  <span class="cm">// complex: legal, financial, multi-step reasoning</span>
+  <span class="kw">if</span> (complexity === <span class="str">"complex"</span>)
+    <span class="kw">return</span> registry.<span class="fn">resolve</span>(<span class="str">"default-reasoning"</span>); <span class="cm">// Sonnet $15/1M</span>
+}</div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span class="pill pill-config">INTERACTIVE</span>
+        <span class="card-title">Adjust the complexity split</span>
+      </div>
+      <div class="act-row" style="border-top:none; padding-top:14px;">
+        <span style="font-size:12px;color:var(--muted);white-space:nowrap;font-family:var(--mono)">Simple %</span>
+        <input type="range" min="0" max="100" step="5" value="80" id="split-slider" oninput="updateCost()">
+        <span style="font-size:13px;font-weight:500;min-width:36px;color:var(--text);font-family:var(--mono)" id="split-val">80%</span>
+      </div>
+      <div class="cost-detail" id="cost-breakdown">
+        8M tokens × Haiku ($4/1M) + 2M × Sonnet ($15/1M) = $1,860/mo
+      </div>
+    </div>
+    <div class="insight">
+      <b>Key point:</b> routing by task complexity is a config decision, not a code architecture. The abstraction layer makes this transparent — clients always send <code>"default"</code>. The router decides which model sees the request.
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-l">immute · poc · apidaysconf.com</div>
+  <div class="footer-r">Ado Trakic &amp; Madhuri Margam · May 2026</div>
+</footer>
+
+<script>
+document.querySelectorAll('.tab').forEach(function(t){
+  t.onclick = function(){
+    document.querySelectorAll('.tab').forEach(function(x){ x.classList.remove('on'); });
+    document.querySelectorAll('.tsection').forEach(function(x){ x.classList.remove('on'); });
+    t.classList.add('on');
+    var el = document.getElementById('t-' + t.dataset.t);
+    if(el) el.classList.add('on');
+  };
+});
+
+var routingRunning = false;
+function resetRouting(){
+  routingRunning = false;
+  document.getElementById('routing-log').innerHTML = '<span class="cm">Press "Simulate request" to watch the fallback cascade...</span>';
+  var r = document.getElementById('routing-result');
+  r.textContent = '—'; r.className = 'rbox';
+}
+function runRouting(){
+  if(routingRunning) return;
+  routingRunning = true;
+  var log = document.getElementById('routing-log');
+  var res = document.getElementById('routing-result');
+  res.textContent = 'routing...'; res.className = 'rbox';
+  var steps = [
+    { t: 0,    html: '<span class="cm">→ Received: POST /v1/chat/completions\n  model: "default-reasoning"  |  registry lookup...</span>' },
+    { t: 700,  html: '<span class="cm">→ Received: POST /v1/chat/completions\n  model: "default-reasoning"  |  registry lookup...</span>\n\n<span class="kw">Primary</span>: <span class="str">anthropic / claude-opus-4-6</span>\n  <span class="cm">→ Calling Anthropic API...</span>' },
+    { t: 1500, html: '<span class="cm">→ Received: POST /v1/chat/completions\n  model: "default-reasoning"  |  registry lookup...</span>\n\n<span class="kw">Primary</span>: <span class="str">anthropic / claude-opus-4-6</span>\n  <span class="err">✗ 529 overloaded_error — marking unhealthy, TTR: 30s</span>\n\n<span class="kw">Fallback 1</span>: <span class="str">openai / gpt-4o</span>\n  <span class="cm">→ Calling OpenAI API...</span>' },
+    { t: 2400, html: '<span class="cm">→ Received: POST /v1/chat/completions\n  model: "default-reasoning"  |  registry lookup...</span>\n\n<span class="kw">Primary</span>: <span class="str">anthropic / claude-opus-4-6</span>\n  <span class="err">✗ 529 overloaded_error — marking unhealthy, TTR: 30s</span>\n\n<span class="kw">Fallback 1</span>: <span class="str">openai / gpt-4o</span>\n  <span class="err">✗ 503 service_unavailable</span>\n\n<span class="kw">Fallback 2</span>: <span class="str">google / gemini-2.5-pro</span>\n  <span class="cm">→ Calling Google API...</span>' },
+    { t: 3300, html: '<span class="cm">→ Received: POST /v1/chat/completions\n  model: "default-reasoning"  |  registry lookup...</span>\n\n<span class="kw">Primary</span>: <span class="str">anthropic / claude-opus-4-6</span>\n  <span class="err">✗ 529 overloaded_error — marking unhealthy, TTR: 30s</span>\n\n<span class="kw">Fallback 1</span>: <span class="str">openai / gpt-4o</span>\n  <span class="err">✗ 503 service_unavailable</span>\n\n<span class="kw">Fallback 2</span>: <span class="str">google / gemini-2.5-pro</span>\n  <span class="ok">✓ 200 OK — normalizing response to unified schema...</span>\n\n<span class="ok">→ Response delivered to client.</span>\n<span class="cm">  Served by: google/gemini-2.5-pro\n  Client saw: model="default-reasoning", standard OpenAI-compatible schema.\n  Latency overhead from fallback: ~1.2s (transparent to consumer)</span>' }
+  ];
+  steps.forEach(function(s){
+    setTimeout(function(){ log.innerHTML = s.html; }, s.t);
+  });
+  setTimeout(function(){
+    res.textContent = '200 OK (google fallback)';
+    res.className = 'rbox ok';
+    routingRunning = false;
+  }, 3300);
+}
+
+var currentMapping = 'sonnet';
+function setMapping(m){
+  currentMapping = m;
+  document.getElementById('map-sonnet').className = 'pbtn' + (m === 'sonnet' ? ' on' : '');
+  document.getElementById('map-haiku').className  = 'pbtn' + (m === 'haiku'  ? ' on' : '');
+  var code  = document.getElementById('swap-registry-code');
+  var title = document.getElementById('swap-panel-title');
+  if(m === 'haiku'){
+    code.innerHTML = '<span class="kw">models</span>:\n  <span class="kw">default</span>:\n    provider:   <span class="str">anthropic</span>\n    model_id:   <span class="str">claude-haiku-4-5</span>\n    max_tokens: <span class="num">4096</span>\n    cost_per_m: <span class="num">4.00</span>\n    <span class="cm"># ← changed. No deploy needed. Hot-reload: 200ms</span>';
+    title.textContent = 'Haiku 4.5 — config only';
+  } else {
+    code.innerHTML = '<span class="kw">models</span>:\n  <span class="kw">default</span>:\n    provider:   <span class="str">anthropic</span>\n    model_id:   <span class="str">claude-sonnet-4-6</span>\n    max_tokens: <span class="num">8192</span>\n    cost_per_m: <span class="num">15.00</span>\n    <span class="cm"># ← change this line only. No deploy.</span>';
+    title.textContent = 'Sonnet 4.6 — config only';
+  }
+  document.getElementById('swap-client-result').textContent = '—';
+  document.getElementById('swap-client-result').className = 'rbox';
+  document.getElementById('swap-registry-result').textContent = '—';
+  document.getElementById('swap-registry-result').className = 'rbox';
+}
+function runSwap(side){
+  var el = document.getElementById('swap-' + side + '-result');
+  el.textContent = 'calling...'; el.className = 'rbox';
+  setTimeout(function(){
+    if(side === 'client'){
+      el.textContent = '200 OK — "The capital of France is Paris."';
+      el.className = 'rbox ok';
+    } else {
+      var model = currentMapping === 'haiku' ? 'claude-haiku-4-5' : 'claude-sonnet-4-6';
+      el.textContent = 'resolved → anthropic/' + model;
+      el.className = 'rbox ok';
+    }
+  }, 800);
+}
+
+var errMap = {
+  anthropic:  { code: 'model_unavailable', msg: 'Service temporarily unavailable',      status: 503, prov: 'anthropic', retry: 30 },
+  openai:     { code: 'rate_limited',      msg: 'Too many requests, please slow down',  status: 429, prov: 'openai',    retry: 60 },
+  google:     { code: 'rate_limited',      msg: 'Quota exceeded for this minute',       status: 429, prov: 'google',    retry: 60 },
+  openai404:  { code: 'invalid_model',     msg: 'The requested model does not exist',   status: 400, prov: 'openai',    retry: 0  }
+};
+function normalizeError(){
+  var sel = document.getElementById('err-provider').value;
+  var e = errMap[sel];
+  document.getElementById('err-code').textContent   = e.code;
+  document.getElementById('err-msg').textContent    = e.msg;
+  document.getElementById('err-status').textContent = e.status;
+  document.getElementById('err-prov').textContent   = e.prov;
+  document.getElementById('err-retry').textContent  = e.retry;
+  var r = document.getElementById('err-result');
+  r.textContent = 'normalized → ' + e.status + ' ' + e.code;
+  r.className = 'rbox ok';
+}
+
+function updateCost(){
+  var pct = parseInt(document.getElementById('split-slider').value);
+  document.getElementById('split-val').textContent = pct + '%';
+  var simpleM  = 10 * (pct / 100);
+  var complexM = 10 * (1 - pct / 100);
+  var smartCost = Math.round((simpleM * 4 + complexM * 15) * 30);
+  var savings   = Math.round((1 - smartCost / 4500) * 100);
+  document.getElementById('c-smart').textContent = '$' + smartCost.toLocaleString() + '/mo';
+  document.getElementById('c-save').textContent  = savings + '%';
+  document.getElementById('c-smart').className = 'mval ' + (smartCost < 4500 ? 'green' : 'red');
+  document.getElementById('c-save').className  = 'mval ' + (savings > 0 ? 'green' : 'red');
+  document.getElementById('cost-breakdown').textContent =
+    simpleM.toFixed(0) + 'M tokens × Haiku ($4/1M) + ' +
+    complexM.toFixed(0) + 'M × Sonnet ($15/1M) = $' +
+    smartCost.toLocaleString() + '/mo';
+}
+</script>
+</body>
+</html>
