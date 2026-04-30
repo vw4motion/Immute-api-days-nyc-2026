@@ -8,7 +8,7 @@ APIDays May 2026 — live CLI demo.
 
 ```bash
 pip install -r requirements.txt
-cp .env.example .env
+cp env.example .env
 # fill in your three API keys in .env
 ```
 
