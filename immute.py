@@ -137,7 +137,8 @@ def complete(logical_model: str, prompt: str, max_tokens: int = 300) -> dict:
     result["provider"] = config["provider"]
     result["model_id"] = config["model_id"]
     result["label"] = config["label"]
-    result["cost_per_output_m"] = config["cost_output"]
+    result["cost_per_input_m"] = config.get("cost_input", 0)
+    result["cost_per_output_m"] = config.get("cost_output", 0)
     return result
 
 def complete_with_fallback(logical_model: str, prompt: str, simulate_failures: list = None, max_tokens: int = 300) -> dict:
@@ -174,8 +175,19 @@ def complete_with_fallback(logical_model: str, prompt: str, simulate_failures: l
 # ─── Cost helper ──────────────────────────────────────────────────────────────
 
 def calc_cost(result: dict) -> float:
-    per_m = result.get("cost_per_output_m", REGISTRY.get(result["logical_model"], {}).get("cost_output", 0))
-    return (result["output_tokens"] / 1_000_000) * per_m
+    cost_in = result.get("cost_per_input_m")
+    cost_out = result.get("cost_per_output_m")
+    if cost_in is None or cost_out is None:
+        for v in REGISTRY.values():
+            if v["model_id"] == result.get("model_id"):
+                cost_in = cost_in if cost_in is not None else v.get("cost_input", 0)
+                cost_out = cost_out if cost_out is not None else v.get("cost_output", 0)
+                break
+    cost_in = cost_in or 0
+    cost_out = cost_out or 0
+    in_cost = (result.get("input_tokens", 0) / 1_000_000) * cost_in
+    out_cost = (result.get("output_tokens", 0) / 1_000_000) * cost_out
+    return in_cost + out_cost
 
 # ─── UI helpers ───────────────────────────────────────────────────────────────
 
@@ -193,7 +205,9 @@ def print_act(n: int, title: str, subtitle: str):
     console.print()
 
 def print_result(result: dict, show_cost: bool = True):
+    global SESSION_COST
     cost = calc_cost(result)
+    SESSION_COST += cost
     t = Table(box=box.SIMPLE, show_header=False, padding=(0, 1))
     t.add_column(style="dim", width=16)
     t.add_column(style="white")
@@ -202,7 +216,7 @@ def print_result(result: dict, show_cost: bool = True):
     t.add_row("Tokens",   f"[cyan]{result['input_tokens']}[/cyan] in / [cyan]{result['output_tokens']}[/cyan] out")
     t.add_row("Latency",  f"{result['latency']:.2f}s")
     if show_cost:
-        t.add_row("Cost",  f"[yellow]${cost * 1000:.4f}[/yellow] [dim](this call)[/dim]")
+        t.add_row("Cost",  f"[yellow]${cost:.5f}[/yellow] [dim](this call)[/dim]  |  [bold yellow]${SESSION_COST:.5f}[/bold yellow] [dim](total so far)[/dim]")
     console.print(t)
     console.print(Panel(result["text"].strip(), title="[dim]response[/dim]", border_style="dim", padding=(0, 1)))
 
@@ -214,6 +228,7 @@ def wait(msg="Press [bold]Enter[/bold] to continue..."):
 # ─── Demo acts ────────────────────────────────────────────────────────────────
 
 PROMPT = "In one sentence, what is an API abstraction layer and why does it matter?"
+SESSION_COST = 0.0
 
 def act1_unified_contract():
     print_act(1, "Unified contract", "same call, three providers")
@@ -273,8 +288,8 @@ def act2_model_swap():
     t.add_column("Model")
     t.add_column("Cost (this call)", justify="right")
     t.add_column("Client changed?", justify="center")
-    t.add_row("Before", r1["label"], f"${cost1*1000:.4f}", "[red]—[/red]")
-    t.add_row("After",  r2["label"], f"${cost2*1000:.4f}", "[green]No[/green]")
+    t.add_row("Before", r1["label"], f"${cost1:.5f}", "[red]—[/red]")
+    t.add_row("After",  r2["label"], f"${cost2:.5f}", "[green]No[/green]")
     t.add_row("",       "",          f"[green]{savings_pct:.0f}% cheaper[/green]", "")
     console.print(t)
 
@@ -319,6 +334,10 @@ def main():
         t.add_row(f'"{name}"', cfg["provider"], cfg["model_id"], f"${cfg['cost_output']:.2f}")
     console.print(t)
 
+    console.print()
+    global PROMPT
+    PROMPT = Prompt.ask("[bold]Enter a custom prompt for the demo[/bold]", default=PROMPT)
+    
     wait("Press Enter to start Act 1 →")
 
     act1_unified_contract()
