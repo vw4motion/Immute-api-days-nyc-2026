@@ -4,6 +4,9 @@
 
 APIDays May 2026 — live CLI demo.
 
+### Why the name "Immute"?
+Derived from **immutable** (unable to be changed). While the generative AI backend landscape is constantly mutating—with new models dropping and APIs shifting—**Immute** ensures your application's client code remains entirely frozen. You never have to mutate your codebase to swap providers, chase cheaper models, or handle outages.
+
 ## Setup
 
 ```bash

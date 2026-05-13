@@ -51,8 +51,8 @@ REGISTRY = {
     },
     "default-long": {
         "provider": "google",
-        "model_id": "gemini-1.5-pro",
-        "label": "Gemini 1.5 Pro",
+        "model_id": "gemini-2.5-flash",
+        "label": "Gemini 2.5 Flash",
         "cost_input": 1.25,
         "cost_output": 5.00,
     },
@@ -61,7 +61,7 @@ REGISTRY = {
 FALLBACK_CHAIN = {
     "default-reasoning": [
         {"provider": "openai",   "model_id": "gpt-4o",          "label": "GPT-4o"},
-        {"provider": "google",   "model_id": "gemini-1.5-pro",   "label": "Gemini 1.5 Pro"},
+        {"provider": "google",   "model_id": "gemini-2.5-flash",   "label": "Gemini 2.5 Flash"},
     ]
 }
 
